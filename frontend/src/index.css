@@ -15,3 +15,52 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
         monospace;
 }
+
+/* Hide Emergent Badge */
+iframe[src*="emergent"],
+div[class*="emergent"],
+div[id*="emergent"],
+a[href*="emergent"],
+.watermark,
+.badge,
+.powered-by,
+[class*="made-with"],
+[id*="made-with"],
+[class*="watermark"],
+[id*="watermark"],
+[class*="badge"],
+[id*="badge"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+/* Additional hiding for common badge positions */
+body > div:last-child:not([id]):not([class]) {
+    display: none !important;
+}
+
+/* Hide any fixed positioned elements in bottom right */
+div[style*="position: fixed"][style*="bottom"][style*="right"] {
+    display: none !important;
+}
+
+/* Hide any absolute positioned elements in corners */
+div[style*="position: absolute"][style*="bottom: 0"][style*="right: 0"],
+div[style*="position: absolute"][style*="top: 0"][style*="right: 0"],
+div[style*="position: fixed"][style*="bottom: 0"][style*="right: 0"],
+div[style*="position: fixed"][style*="top: 0"][style*="right: 0"] {
+    display: none !important;
+}
+
+/* Ensure PULSE branding stays visible */
+.pulse-logo,
+[class*="pulse"],
+[id*="pulse"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
