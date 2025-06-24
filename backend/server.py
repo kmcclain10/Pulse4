@@ -984,6 +984,87 @@ async def calculate_payment(vehicle_price: float, down_payment: float,
                                                    interest_rate, term_months)
     return result
 
+# Enhanced Desking Tool Endpoint (from pulse2)
+@api_router.post("/desking/calculate")
+async def calculate_enhanced_desking(
+    vehicle_price: float,
+    trade_value: float = 0.0,
+    down_payment: float = 0.0,
+    extended_warranty: float = 0.0,
+    gap_insurance: float = 0.0,
+    credit_life: float = 0.0,
+    disability_insurance: float = 0.0,
+    service_contract: float = 0.0,
+    sales_tax_rate: float = 0.0925,
+    doc_fee: float = 699.0,
+    title_fee: float = 75.0,
+    registration_fee: float = 24.0,
+    interest_rate: float = 7.5,
+    loan_term: int = 72
+):
+    """Enhanced desking calculation with VSC and GAP"""
+    
+    # Calculate net trade difference
+    net_trade_difference = vehicle_price - trade_value
+
+    # Calculate total add-ons
+    total_add_ons = (
+        extended_warranty +
+        gap_insurance +
+        credit_life +
+        disability_insurance +
+        service_contract
+    )
+
+    # Calculate subtotal before tax
+    subtotal = net_trade_difference + total_add_ons
+
+    # Calculate tax (on subtotal minus trade)
+    taxable_amount = subtotal - trade_value if trade_value > 0 else subtotal
+    sales_tax = taxable_amount * sales_tax_rate
+
+    # Calculate total fees
+    total_fees = doc_fee + title_fee + registration_fee
+
+    # Calculate total amount financed
+    total_amount_financed = subtotal + sales_tax + total_fees - down_payment
+
+    # Calculate monthly payment
+    monthly_rate = (interest_rate / 100) / 12
+    monthly_payment = 0
+
+    if monthly_rate > 0:
+        monthly_payment = (total_amount_financed * monthly_rate *
+                         (1 + monthly_rate) ** loan_term) / \
+                        ((1 + monthly_rate) ** loan_term - 1)
+    else:
+        monthly_payment = total_amount_financed / loan_term
+
+    return {
+        "vehicle_price": vehicle_price,
+        "trade_value": trade_value,
+        "net_trade_difference": net_trade_difference,
+        "down_payment": down_payment,
+        "total_add_ons": total_add_ons,
+        "subtotal": subtotal,
+        "sales_tax": sales_tax,
+        "total_fees": total_fees,
+        "total_amount_financed": total_amount_financed,
+        "monthly_payment": round(monthly_payment, 2),
+        "interest_rate": interest_rate,
+        "loan_term": loan_term,
+        "breakdown": {
+            "extended_warranty": extended_warranty,
+            "gap_insurance": gap_insurance,
+            "credit_life": credit_life,
+            "disability_insurance": disability_insurance,
+            "service_contract": service_contract,
+            "doc_fee": doc_fee,
+            "title_fee": title_fee,
+            "registration_fee": registration_fee
+        }
+    }
+
 @crm_router.post("/service/schedule")
 async def schedule_service(vehicle_id: str, service_type: str, scheduled_date: datetime):
     """Schedule vehicle service"""
