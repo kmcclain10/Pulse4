@@ -866,6 +866,7 @@ function App() {
           {/* Customer Pages */}
           <Route path="/" element={<CustomerHomePage />} />
           <Route path="/customer-inventory" element={<CustomerInventoryPage />} />
+          <Route path="/vehicle/:vehicleId" element={<VehicleDetailPage />} />
           <Route path="/repair-shops" element={<ServiceRepairPage />} />
 
           {/* Dealer Portal Pages */}
@@ -890,7 +891,7 @@ function App() {
             <div className="min-h-screen bg-gray-900">
               <DealerSidebar activePage="desking-tool" />
               <div className="md:ml-64 pt-16 md:pt-0 py-8">
-                <DeskingTool />
+                <EnhancedDeskingTool />
               </div>
             </div>
           } />
