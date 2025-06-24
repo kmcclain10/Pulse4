@@ -724,44 +724,111 @@ const CustomerHomePage = () => {
 
 // Simplified placeholder components for demo - keeping existing customer and dealer functionality
 const CustomerInventoryPage = () => {
-  const [vehicles] = useState([
-    { id: '1', year: 2021, make: 'Audi', model: 'A4 Premium Quattro', price: 28500, mileage: 23450, dealer: 'Apex Auto' },
-    { id: '2', year: 2020, make: 'Ford', model: 'F-150 XLT', price: 32900, mileage: 18200, dealer: 'Premier Motors' },
-    { id: '3', year: 2019, make: 'Honda', model: 'CR-V EX', price: 24800, mileage: 28900, dealer: 'Elite Auto Group' }
-  ]);
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get(`${API}/customer/vehicles?limit=20`);
+      setVehicles(response.data);
+    } catch (error) {
+      console.error('Error fetching vehicles:', error);
+      // Fallback data
+      setVehicles([
+        { id: '1', year: 2021, make: 'Audi', model: 'A4 Premium Quattro', price: 28500, mileage: 23450, dealer_name: 'Apex Auto', images: [] },
+        { id: '2', year: 2020, make: 'Ford', model: 'F-150 XLT', price: 32900, mileage: 18200, dealer_name: 'Premier Motors', images: [] },
+        { id: '3', year: 2019, make: 'Honda', model: 'CR-V EX', price: 24800, mileage: 28900, dealer_name: 'Elite Auto Group', images: [] }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const viewVehicleDetails = (vehicleId) => {
+    navigate(`/vehicle/${vehicleId}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-900">
       <CustomerHeader />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-white mb-8">Available Vehicles</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vehicles.map((vehicle) => (
-            <div key={vehicle.id} className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-              <div className="h-48 bg-gray-700 flex items-center justify-center">
-                <svg className="w-20 h-20 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 9l-1.26-3.78A2 2 0 0 0 15.84 4H8.16a2 2 0 0 0-1.9 1.22L5 9H3v11a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h12v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V9h-2zM7.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm9 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM7 9l.84-2.52A1 1 0 0 1 8.78 6h6.44a1 1 0 0 1 .94.48L17 9H7z"/>
-                </svg>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-white mb-2">
-                  {vehicle.year} {vehicle.make} {vehicle.model}
-                </h3>
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-2xl font-bold text-yellow-400">
-                    ${vehicle.price.toLocaleString()}
-                  </span>
-                  <span className="text-gray-400">
-                    {vehicle.mileage.toLocaleString()} miles
-                  </span>
+        <h1 className="text-4xl font-bold text-white mb-8">Available Vehicles ({vehicles.length})</h1>
+        
+        {loading ? (
+          <div className="text-center text-white py-12">Loading vehicles...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {vehicles.map((vehicle) => (
+              <div 
+                key={vehicle.id} 
+                className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                onClick={() => viewVehicleDetails(vehicle.id)}
+              >
+                <div className="h-48 bg-gray-700 flex items-center justify-center relative overflow-hidden">
+                  {vehicle.images && vehicle.images.length > 0 ? (
+                    <img
+                      src={vehicle.images[0]}
+                      alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <svg className="w-20 h-20 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 9l-1.26-3.78A2 2 0 0 0 15.84 4H8.16a2 2 0 0 0-1.9 1.22L5 9H3v11a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h12v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V9h-2zM7.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm9 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM7 9l.84-2.52A1 1 0 0 1 8.78 6h6.44a1 1 0 0 1 .94.48L17 9H7z"/>
+                    </svg>
+                  )}
+                  
+                  {/* Photo Count Badge */}
+                  {vehicle.images && vehicle.images.length > 0 && (
+                    <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded-full">
+                      {vehicle.images.length} photos
+                    </div>
+                  )}
                 </div>
-                <div className="text-sm text-gray-400 mb-4">
-                  <p className="font-medium">{vehicle.dealer}</p>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    {vehicle.year} {vehicle.make} {vehicle.model}
+                  </h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-2xl font-bold text-yellow-400">
+                      ${vehicle.price?.toLocaleString()}
+                    </span>
+                    <span className="text-gray-400">
+                      {vehicle.mileage?.toLocaleString()} miles
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-400 mb-4">
+                    <p className="font-medium">{vehicle.dealer_name}</p>
+                    {vehicle.dealer_city && vehicle.dealer_state && (
+                      <p>{vehicle.dealer_city}, {vehicle.dealer_state}</p>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      viewVehicleDetails(vehicle.id);
+                    }}
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-lg transition-colors"
+                  >
+                    View Details
+                  </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+        
+        {!loading && vehicles.length === 0 && (
+          <div className="text-center text-gray-400 py-12">
+            <p>No vehicles found. Our inventory is being updated.</p>
+          </div>
+        )}
       </div>
     </div>
   );
