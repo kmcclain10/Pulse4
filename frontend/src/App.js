@@ -5,11 +5,13 @@ import './App.css';
 
 // Import Components
 import DeskingTool from './components/DeskingTool';
+import EnhancedDeskingTool from './components/EnhancedDeskingTool';
 import LeadsManagement from './components/LeadsManagement';
 import CreditApplication from './components/CreditApplication';
 import AdminDashboard from './components/AdminDashboard';
 import DealerCRM from './components/DealerCRM';
 import ScraperManagement from './components/ScraperManagement';
+import VehicleDetailPage from './components/VehicleDetailPage';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
